@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8" />
+    <title>Babylon - Getting Started</title>
+    <!--- link to the last version of babylon -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+
+            var canvas = document.getElementById('renderCanvas');
+            // load the 3D engine
+            var engine = new BABYLON.Engine(canvas, true);
+            // createScene function that creates and return the scene
+            var createScene = function () {
+                // create a basic BJS Scene object 
+                var scene = new BABYLON.Scene(engine);
+                var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+                VRHelper = scene.createDefaultVRExperience();
+                console.log("VR up");
+                VRHelper.onControllerMeshLoaded = (webVrController) => {
+                    console.log("controller up..")
+                    if (webVrController.hand === "left") {
+                    } else {
+                    }
+                }
+                var renderCounter = 1000;
+                scene.registerBeforeRender(function () {
+
+                    renderCounter++;
+                    if (renderCounter > 1000) {
+                        var askArray = [];
+                        var bidArray = [];
+                        renderCounter = 0;
+                        $.getJSON('https://api.polygon.io/v1/historic/forex/EUR/USD/2018-2-2?limit=100&apiKey=espiyqtKYv_00JZ8nQrpFa_qdw5_LLuoNZDESS', function (data) {
+
+                            var maxa = 0, mina = 100, maxb = 0, minb = 100;
+                            data.ticks.forEach((element, index) => {
+                                if (element.a > maxa) {
+                                    maxa = element.a;
+                                }
+                                if (element.a < mina) {
+                                    mina = element.a;
+                                }
+                                if (element.b > maxb) {
+                                    maxb = element.b;
+                                }
+                                if (element.b < minb) {
+                                    minb = element.b;
+                                }
+                                askArray.push(new BABYLON.Vector3(index / 10, element.a, 0.1));
+                                bidArray.push(new BABYLON.Vector3(index / 10, element.b, 0.2));
+                            });
+
+                            askArray.forEach(function (element, index) {
+
+
+                                askArray[index].y = (element.y - mina) / (maxa - mina);
+
+
+                            });
+                            bidArray.forEach(function (element, index) {
+                                bidArray[index].y = (element.y - minb) / (maxb - minb);
+                            });
+                            console.log(VRHelper.currentVRCamera.getForwardRay());
+                            //creates lines
+                            var ask = BABYLON.MeshBuilder.CreateLines("lines", { points: askArray, updatable: true }, scene);
+                            ask.color = new BABYLON.Color3(1.0, 0, 0);
+                            //creates lines
+                            var bid = BABYLON.MeshBuilder.CreateLines("lines", { points: bidArray, updatable: true }, scene);
+                            bid.color = new BABYLON.Color3(0, 1, 0);
+
+                            var ray;
+
+
+                        });
+                    }
+                    // sending a ray right in front of the camera
+                    // aligned with the centered small circle target
+                    console.log("rendering");
+                    var camera = VRHelper._webVRCamera;
+                    console.log(camera);
+                    var ray = camera.getForwardRay();
+                    console.log(ray);
+                    var hit = scene.pickWithRay(ray, predicate);
+                    console.log(hit);
+                });
+                return scene;
+            }
+
+            var scene = createScene();
+            engine.runRenderLoop(function () {
+                scene.render();
+
+            });
+
+        });
+        function predicate() {
+            return true;
+        }
+
+    </script>
+
+</body>
+
+</html>
