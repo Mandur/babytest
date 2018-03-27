@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html" charset="utf-8" />
     <title>Babylon - Getting Started</title>
     <!--- link to the last version of babylon -->
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://preview.babylonjs.com/babylon.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
     <style>
@@ -44,16 +44,18 @@
                 var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
                 VRHelper = scene.createDefaultVRExperience();
                 console.log("VR up");
+     
                 VRHelper.enableInteractions();
+                VRHelper.onNewMeshPicked.add((pickingInfo) => {
+                    console.log(pickingInfo);
+                });
                 VRHelper.onControllerMeshLoaded = (webVrController) => {
                     console.log("controller up..")
                     if (webVrController.hand === "left") {
                     } else {
                     }
                 }
-                VRHelper.onNewMeshSelected.add((mesh) => {
-                    console.log("impact detected");
-                });
+               
                 var renderCounter = 1000;
                 scene.registerBeforeRender(function () {
 
