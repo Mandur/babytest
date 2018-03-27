@@ -7,7 +7,8 @@
     <title>Babylon - Getting Started</title>
     <!--- link to the last version of babylon -->
     <script src="https://preview.babylonjs.com/babylon.js"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
     <style>
         html,
         body {
@@ -35,10 +36,16 @@
             // load the 3D engine
             var engine = new BABYLON.Engine(canvas, true);
 
+
+
             // createScene function that creates and return the scene
             var createScene = function () {
                 // create a basic BJS Scene object
                 var scene = new BABYLON.Scene(engine);
+
+                // Add and manipulate meshes in the scene
+                var selectedSphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 0.02 }, scene);
+                selectedSphere.isVisible = false;
                 // var camera = new BABYLON.Camera("camera1", BABYLON.Vector3.Zero(), scene);
                 var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
                 VRHelper = scene.createDefaultVRExperience();
@@ -94,19 +101,27 @@
                         bid.color = new BABYLON.Color3(0, 1, 0);
                     });
                 }
+                VRHelper.raySelectionPredicate = (mesh) => {
+                    if (mesh.name.indexOf("sphere") !== -1) {
+                        return false;
+                    }
+                    return true;
+                };
 
                 VRHelper.onNewMeshPicked.add((pickingInfo) => {
                     var meshName = pickingInfo.pickedMesh.name,
                         xVal = Math.round(pickingInfo.pickedPoint.x * 10),
                         yVal;
+                    selectedSphere.position = pickingInfo.pickedPoint;
+                    selectedSphere.isVisible = true;
 
-                    if(meshName === "asklines") {
-                        if(askArray[xVal])
+                    if (meshName === "asklines") {
+                        if (askArray[xVal])
                             yVal = askArray[xVal].y * (maxa - mina) + mina;
                     }
-                    else if(meshName === "bidlines") {
-                        if(bidArray[xVal])
-                            yVal = bidArray[xVal].y * (maxb - minb) + minb ;
+                    else if (meshName === "bidlines") {
+                        if (bidArray[xVal])
+                            yVal = bidArray[xVal].y * (maxb - minb) + minb;
                     }
 
                     //denormalize Y
