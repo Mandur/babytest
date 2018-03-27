@@ -35,10 +35,12 @@
             var canvas = document.getElementById('renderCanvas');
             // load the 3D engine
             var engine = new BABYLON.Engine(canvas, true);
+
             // createScene function that creates and return the scene
             var createScene = function () {
-                // create a basic BJS Scene object 
+                // create a basic BJS Scene object
                 var scene = new BABYLON.Scene(engine);
+                // var camera = new BABYLON.Camera("camera1", BABYLON.Vector3.Zero(), scene);
                 var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
                 VRHelper = scene.createDefaultVRExperience();
                 console.log("VR up");
@@ -86,12 +88,12 @@
                             bidArray.forEach(function (element, index) {
                                 bidArray[index].y = (element.y - minb) / (maxb - minb);
                             });
-                            console.log(VRHelper.currentVRCamera.getForwardRay());
+                            // console.log(VRHelper.currentVRCamera.getForwardRay());
                             //creates lines
-                            var ask = BABYLON.MeshBuilder.CreateLines("lines", { points: askArray, updatable: true }, scene);
+                            var ask = BABYLON.MeshBuilder.CreateLines("asklines", { points: askArray, updatable: true }, scene);
                             ask.color = new BABYLON.Color3(1.0, 0, 0);
                             //creates lines
-                            var bid = BABYLON.MeshBuilder.CreateLines("lines", { points: bidArray, updatable: true }, scene);
+                            var bid = BABYLON.MeshBuilder.CreateLines("bidlines", { points: bidArray, updatable: true }, scene);
                             bid.color = new BABYLON.Color3(0, 1, 0);
 
                             var ray;
@@ -101,13 +103,17 @@
                     }
                     // sending a ray right in front of the camera
                     // aligned with the centered small circle target
-                    console.log("rendering");
-                    var camera = VRHelper._webVRCamera;
-                    console.log(camera);
+                    // console.log("rendering");
+                    var camera = VRHelper.currentVRCamera;
+                    // console.log(camera);
                     var ray = camera.getForwardRay();
-                    console.log(ray);
+                    // console.log(ray);
                     var hit = scene.pickWithRay(ray, predicate);
-                    console.log(hit);
+                    // console.log(hit);
+
+                    if(hit.hit === true) {
+                        console.log('hittt!', hit.pickedPoint.x, hit.pickedPoint.y)
+                    }
                 });
                 return scene;
             }
