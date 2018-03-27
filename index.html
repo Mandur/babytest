@@ -7,8 +7,7 @@
     <title>Babylon - Getting Started</title>
     <!--- link to the last version of babylon -->
     <script src="https://preview.babylonjs.com/babylon.js"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <style>
         html,
         body {
@@ -44,70 +43,66 @@
                 var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
                 VRHelper = scene.createDefaultVRExperience();
                 console.log("VR up");
-     
+
                 VRHelper.enableInteractions();
+
                 VRHelper.onNewMeshPicked.add((pickingInfo) => {
                     console.log(pickingInfo);
                 });
+
                 VRHelper.onControllerMeshLoaded = (webVrController) => {
                     console.log("controller up..")
                     if (webVrController.hand === "left") {
                     } else {
                     }
                 }
-               
-                var renderCounter = 1000;
-                scene.registerBeforeRender(function () {
 
-                    renderCounter++;
-                    if (renderCounter > 1000) {
-                        var askArray = [];
-                        var bidArray = [];
-                        renderCounter = 0;
-                        $.getJSON('https://api.polygon.io/v1/historic/forex/EUR/USD/2018-2-2?limit=100&apiKey=espiyqtKYv_00JZ8nQrpFa_qdw5_LLuoNZDESS', function (data) {
+                var askArray = [],
+                    bidArray = [],
+                    maxa = 0, mina = 100, maxb = 0, minb = 100;
 
-                            var maxa = 0, mina = 100, maxb = 0, minb = 100;
-                            data.ticks.forEach((element, index) => {
-                                if (element.a > maxa) {
-                                    maxa = element.a;
-                                }
-                                if (element.a < mina) {
-                                    mina = element.a;
-                                }
-                                if (element.b > maxb) {
-                                    maxb = element.b;
-                                }
-                                if (element.b < minb) {
-                                    minb = element.b;
-                                }
-                                askArray.push(new BABYLON.Vector3(index / 10, element.a, 0.1));
-                                bidArray.push(new BABYLON.Vector3(index / 10, element.b, 0.2));
-                            });
+                function plotLines() {
+                    renderCounter = 0;
+                    $.getJSON('https://api.polygon.io/v1/historic/forex/EUR/USD/2018-2-2?limit=100&apiKey=espiyqtKYv_00JZ8nQrpFa_qdw5_LLuoNZDESS', function (data) {
 
-                            askArray.forEach(function (element, index) {
-
-
-                                askArray[index].y = (element.y - mina) / (maxa - mina);
-
-
-                            });
-                            bidArray.forEach(function (element, index) {
-                                bidArray[index].y = (element.y - minb) / (maxb - minb);
-                            });
-                            // console.log(VRHelper.currentVRCamera.getForwardRay());
-                            //creates lines
-                            var ask = BABYLON.MeshBuilder.CreateLines("asklines", { points: askArray, updatable: true }, scene);
-                            ask.color = new BABYLON.Color3(1.0, 0, 0);
-                            //creates lines
-                            var bid = BABYLON.MeshBuilder.CreateLines("bidlines", { points: bidArray, updatable: true }, scene);
-                            bid.color = new BABYLON.Color3(0, 1, 0);
-
-
-
+                        data.ticks.forEach((element, index) => {
+                            if (element.a > maxa) {
+                                maxa = element.a;
+                            }
+                            if (element.a < mina) {
+                                mina = element.a;
+                            }
+                            if (element.b > maxb) {
+                                maxb = element.b;
+                            }
+                            if (element.b < minb) {
+                                minb = element.b;
+                            }
+                            askArray.push(new BABYLON.Vector3(index / 10, element.a, 0.1));
+                            bidArray.push(new BABYLON.Vector3(index / 10, element.b, 0.2));
                         });
-                    }
 
-                });
+                        askArray.forEach(function (element, index) {
+                            askArray[index].y = (element.y - mina) / (maxa - mina);
+                        });
+                        bidArray.forEach(function (element, index) {
+                            bidArray[index].y = (element.y - minb) / (maxb - minb);
+                        });
+                        // console.log(VRHelper.currentVRCamera.getForwardRay());
+                        //creates lines
+                        var ask = BABYLON.MeshBuilder.CreateLines("asklines", { points: askArray, updatable: true }, scene);
+                        ask.color = new BABYLON.Color3(1.0, 0, 0);
+                        //creates lines
+                        var bid = BABYLON.MeshBuilder.CreateLines("bidlines", { points: bidArray, updatable: true }, scene);
+                        bid.color = new BABYLON.Color3(0, 1, 0);
+                    });
+                }
+
+                // scene.registerBeforeRender(function () {
+                // });
+
+                plotLines();
+
                 return scene;
             }
 
@@ -118,10 +113,6 @@
             });
 
         });
-        function predicate() {
-            return true;
-        }
-
     </script>
 
 </body>
