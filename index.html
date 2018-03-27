@@ -46,9 +46,6 @@
 
                 VRHelper.enableInteractions();
 
-                VRHelper.onNewMeshPicked.add((pickingInfo) => {
-                    console.log(pickingInfo);
-                });
 
                 VRHelper.onControllerMeshLoaded = (webVrController) => {
                     console.log("controller up..")
@@ -97,6 +94,24 @@
                         bid.color = new BABYLON.Color3(0, 1, 0);
                     });
                 }
+
+                VRHelper.onNewMeshPicked.add((pickingInfo) => {
+                    var meshName = pickingInfo.pickedMesh.name,
+                        xVal = Math.round(pickingInfo.pickedPoint.x * 10),
+                        yVal;
+
+                    if(meshName === "asklines") {
+                        if(askArray[xVal])
+                            yVal = askArray[xVal].y * (maxa - mina) + mina;
+                    }
+                    else if(meshName === "bidlines") {
+                        if(bidArray[xVal])
+                            yVal = bidArray[xVal].y * (maxb - minb) + minb ;
+                    }
+
+                    //denormalize Y
+                    console.log(meshName, xVal, yVal);
+                });
 
                 // scene.registerBeforeRender(function () {
                 // });
