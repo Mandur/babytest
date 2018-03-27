@@ -44,12 +44,16 @@
                 var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
                 VRHelper = scene.createDefaultVRExperience();
                 console.log("VR up");
+                VRHelper.enableInteractions();
                 VRHelper.onControllerMeshLoaded = (webVrController) => {
                     console.log("controller up..")
                     if (webVrController.hand === "left") {
                     } else {
                     }
                 }
+                VRHelper.onNewMeshSelected.add((mesh) => {
+                    console.log("impact detected");
+                });
                 var renderCounter = 1000;
                 scene.registerBeforeRender(function () {
 
@@ -96,24 +100,11 @@
                             var bid = BABYLON.MeshBuilder.CreateLines("bidlines", { points: bidArray, updatable: true }, scene);
                             bid.color = new BABYLON.Color3(0, 1, 0);
 
-                            var ray;
 
 
                         });
                     }
-                    // sending a ray right in front of the camera
-                    // aligned with the centered small circle target
-                    // console.log("rendering");
-                    var camera = VRHelper.currentVRCamera;
-                    // console.log(camera);
-                    var ray = camera.getForwardRay();
-                    // console.log(ray);
-                    var hit = scene.pickWithRay(ray, predicate);
-                    // console.log(hit);
 
-                    if(hit.hit === true) {
-                        console.log('hittt!', hit.pickedPoint.x, hit.pickedPoint.y)
-                    }
                 });
                 return scene;
             }
